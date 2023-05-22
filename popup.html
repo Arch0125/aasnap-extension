@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <button id="invokeSnap">Invoke Snap</button>
+
+    <script>
+      document.getElementById('invokeSnap').addEventListener('click', function() {
+        if (window.ethereum) {
+          window.ethereum.request({
+            method: "wallet_invokeSnap",
+            params: {
+              snapId: "yourSnapIdHere",
+              request: { method: 'hello' },
+            },
+          });
+        } else {
+          alert("Ethereum object not found");
+        }
+      });
+    </script>
+  </body>
+</html>
