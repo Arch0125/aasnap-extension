@@ -1,4 +1,11 @@
-const scriptContent = `
+const ethersScript = document.createElement("script");
+ethersScript.src = "https://cdn.ethers.io/lib/ethers-5.0.umd.min.js"; // Ethers.js CDN
+(document.head || document.documentElement).appendChild(ethersScript);
+
+ethersScript.onload = () => {
+  const scriptContent = `
+  //5b1c32040fad747da544476076de2997bbb06c39353d96a4d72b1db3e60bcc82
+
   function checkEthereum() {
     if (window.ethereum) {
       const originalRequest = window.ethereum.request;
@@ -18,8 +25,13 @@ const scriptContent = `
                 });
                 console.log(res);
                 if(res==true){
-                return["0x4db171FeB51160AFE95BB39f263c3BC53f17a7Df"]}
+                  const privateKey = '5b1c32040fad747da544476076de2997bbb06c39353d96a4d72b1db3e60bcc82';
+                  const wallet = new window.ethers.Wallet(privateKey);
+                  console.log('Address: ', wallet.address);
+                  return[wallet.address]
+                }
               }
+              
               return originalRequest.apply(this, arguments);
             }
           }
@@ -33,16 +45,17 @@ const scriptContent = `
   checkEthereum();
 `;
 
-// Create a script tag with the above script content
-const scriptElement = document.createElement('script');
-scriptElement.textContent = scriptContent;
-(document.head||document.documentElement).appendChild(scriptElement);
-scriptElement.remove(); // Once the script is injected, remove the element.
+  // Create a script tag with the above script content
+  const scriptElement = document.createElement("script");
+  scriptElement.textContent = scriptContent;
+  (document.head || document.documentElement).appendChild(scriptElement);
+  scriptElement.remove(); // Once the script is injected, remove the element.
+};
 
-window.addEventListener('message', function(event) {
+window.addEventListener("message", function (event) {
   // We only accept messages from ourselves
   if (event.source !== window) return;
-  if (event.data.type && (event.data.type === 'ETHEREUM_PROVIDER')) {
+  if (event.data.type && event.data.type === "ETHEREUM_PROVIDER") {
     console.log(event.data.text);
     alert(event.data.text);
   }
