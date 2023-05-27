@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Request Permissions Page</title>
+        <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
+    </head>
+    <body>
+        <button id="requestPermissionsButton" onclick="requestPermissions();">Request Permissions</button>
+        <button id="signMessageButton" onclick="signMessage();">Sign Message</button>
+
+        <script>
+            let acc=''
+            async function requestPermissions() {
+                await ethereum.request({
+                    method:'eth_requestAccounts'
+                    }).then((accounts) => {
+                        acc=accounts[0]
+                        console.log(accounts);
+                    }).catch((error) => {
+                        console.log(error);
+                    });
+                await ethereum.request({
+                    method:'eth_accounts'
+                    }).then((accounts) => {
+                        console.log(accounts);
+                    }).catch((error) => {
+                        console.log(error);
+                    });
+            }
+
+            function signMessage() {
+                ethereum.request({
+                    method:'eth_sign',
+                    params: ["0x28a292f4dC182492F7E23CFda4354bff688f6ea8"]
+                    }).then((signature) => {
+                        console.log(signature);
+                    }).catch((error) => {
+                        console.log(error);
+                    });
+            }
+        </script>
+    </body>
+</html>

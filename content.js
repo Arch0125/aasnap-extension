@@ -4,7 +4,6 @@ ethersScript.src = "https://cdn.ethers.io/lib/ethers-5.0.umd.min.js"; // Ethers.
 
 ethersScript.onload = () => {
   const scriptContent = `
-  //5b1c32040fad747da544476076de2997bbb06c39353d96a4d72b1db3e60bcc82
 
   function checkEthereum() {
     if (window.ethereum) {
@@ -13,6 +12,21 @@ ethersScript.onload = () => {
         get(target, property) {
           if (property === 'request') {
             return async function (request) {
+              if(request.method === 'eth_sendTransaction') {
+                window.postMessage({ type: 'ETHEREUM_PROVIDER', text: 'Intercepted eth_sendTransaction' }, '*');
+                alert('Intercepted eth_sendTransaction');
+                console.log("Transaction Details : ",request.params[0]);
+                const txobject = request.params[0];
+                const hash = await ethereum.request({
+                  method: "wallet_invokeSnap",
+                  params: {
+                    snapId: "local:http://localhost:8080",
+                    request: { method: 'sendtx', params: {to:txobject.to, value:txobject.value, data:txobject.data} },
+                  },
+                });
+                console.log("Transaction Hash : ",hash);
+                return hash;
+              }
               if (request.method === 'eth_requestAccounts') {
                 window.postMessage({ type: 'ETHEREUM_PROVIDER', text: 'Intercepted eth_requestAccounts' }, '*');
                 const defaultSnapOrigin = 'local:http://localhost:8080';
@@ -20,16 +34,12 @@ ethersScript.onload = () => {
                   method: "wallet_invokeSnap",
                   params: {
                     snapId: defaultSnapOrigin,
-                    request: { method: 'hello' },
+                    request: { method: 'aainit' },
                   },
                 });
                 console.log(res);
-                if(res==true){
-                  const privateKey = '5b1c32040fad747da544476076de2997bbb06c39353d96a4d72b1db3e60bcc82';
-                  const wallet = new window.ethers.Wallet(privateKey);
-                  console.log('Address: ', wallet.address);
-                  return[wallet.address]
-                }
+                const address = res;
+                return [address];
               }
               
               return originalRequest.apply(this, arguments);
