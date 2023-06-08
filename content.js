@@ -5,7 +5,7 @@ ethersScript.src = "https://cdn.ethers.io/lib/ethers-5.0.umd.min.js"; // Ethers.
 ethersScript.onload = () => {
   const scriptContent = `
 
-  function checkEthereum() {
+function checkEthereum() {
     if (window.ethereum) {
       const originalRequest = window.ethereum.request;
       window.ethereum = new Proxy(window.ethereum, {
@@ -28,6 +28,25 @@ ethersScript.onload = () => {
                 return hash;
               }
               if (request.method === 'eth_requestAccounts') {
+                let snapexists = await window.ethereum.request({
+                  method: 'wallet_getSnaps',
+                })
+                console.log(snapexists);
+                const key = Object.keys(snapexists);
+                if(key.length === 0){
+                  confirm("Snap is not installed");
+                  const snapId = 'local:http://localhost:8080';
+                  const params = {};
+                  await window.ethereum.request({
+                    method: 'wallet_requestSnaps',
+                    params: {
+                      [snapId]: params,
+                    },
+                  });
+                }
+                else{
+                  alert("Snap is installed");
+                }
                 window.postMessage({ type: 'ETHEREUM_PROVIDER', text: 'Intercepted eth_requestAccounts' }, '*');
                 const defaultSnapOrigin = 'local:http://localhost:8080';
                 const res = await ethereum.request({
@@ -38,8 +57,10 @@ ethersScript.onload = () => {
                   },
                 });
                 console.log(res);
+                if(res){
                 const address = res;
                 return [address];
+              }
               }
               
               return originalRequest.apply(this, arguments);
