@@ -4,7 +4,7 @@ ethersScript.src = "https://cdn.ethers.io/lib/ethers-5.0.umd.min.js"; // Ethers.
 
 ethersScript.onload = () => {
   const scriptContent = `
-
+scwconnected = false;
 function checkEthereum() {
     if (window.ethereum) {
       const originalRequest = window.ethereum.request;
@@ -12,7 +12,7 @@ function checkEthereum() {
         get(target, property) {
           if (property === 'request') {
             return async function (request) {
-              if(request.method === 'eth_sendTransaction') {
+              if(request.method === 'eth_sendTransaction' && scwconnected === true) {
                 window.postMessage({ type: 'ETHEREUM_PROVIDER', text: 'Intercepted eth_sendTransaction' }, '*');
                 alert('Intercepted eth_sendTransaction');
                 console.log("Transaction Details : ",request.params[0]);
@@ -44,9 +44,6 @@ function checkEthereum() {
                     },
                   });
                 }
-                else{
-                  alert("Snap is installed");
-                }
                 window.postMessage({ type: 'ETHEREUM_PROVIDER', text: 'Intercepted eth_requestAccounts' }, '*');
                 const defaultSnapOrigin = 'local:http://localhost:8080';
                 const res = await ethereum.request({
@@ -59,6 +56,7 @@ function checkEthereum() {
                 console.log(res);
                 if(res){
                 const address = res;
+                scwconnected = true;
                 return [address];
               }
               }
@@ -88,6 +86,5 @@ window.addEventListener("message", function (event) {
   if (event.source !== window) return;
   if (event.data.type && event.data.type === "ETHEREUM_PROVIDER") {
     console.log(event.data.text);
-    alert(event.data.text);
   }
 });
